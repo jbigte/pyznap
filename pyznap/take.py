@@ -175,30 +175,30 @@ def take_config(config, settings={}):
             # Take recursive snapshot of parent filesystem - ignore exclude property for top fs
             take_filesystem(children[0], conf)
 
-	# Take snapshot of all children that do not have a more specific config
-	for child in children[1:]:
-    		# 1. Skip if dataset has its own specific config
-    		skip = False
-    		if child.name in config_d:
-        		skip = True
-    		else:
-        		for other_name in config_d.keys():
-            			if other_name.startswith(name + '/') and child.name.startswith(other_name + '/'):
-                			skip = True
-                			break
+            # Take snapshot of all children that do not have a more specific config
+            for child in children[1:]:
+                # 1. Skip if dataset has its own specific config
+                skip = False
+                if child.name in config_d:
+                    skip = True
+                else:
+                    for other_name in config_d.keys():
+                        if other_name.startswith(name + '/') and child.name.startswith(other_name + '/'):
+                            skip = True
+                            break
 
-		# 2. Skip if dataset has the "snap exclude" property
-		if not skip and snap_exclude_property and child.ispropval(snap_exclude_property, check='false'):
-			logger.debug(
-            			'Ignore dataset {:s}, have property {:s}=false'.format(
-                			child.name, snap_exclude_property
-            			)
-			)
-			skip = True
+                # 2. Skip if dataset has the "snap exclude" property
+                if not skip and snap_exclude_property and child.ispropval(snap_exclude_property, check='false'):
+                    logger.debug(
+                        'Ignore dataset {:s}, have property {:s}=false'.format(
+                            child.name, snap_exclude_property
+                        )
+                    )
+                    skip = True
 
-		# 3. Take snapshot if not skipped
-		if not skip:
-			take_filesystem(child, conf)
+                # 3. Take snapshot if not skipped
+                if not skip:
+                    take_filesystem(child, conf)
         finally:
             if ssh:
                 ssh.close()
